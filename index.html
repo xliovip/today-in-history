@@ -514,6 +514,93 @@ body::before {
   opacity: .4;
 }
 
+/* ===== Festival Banner ===== */
+.festival-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.festival-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+}
+.festival-tag .icon { font-size: 15px; }
+.festival-tag .sub {
+  font-size: 10px;
+  opacity: .6;
+  margin-left: 2px;
+  font-family: var(--font-ui);
+}
+.festival-tag.节气 { border-color: var(--green-dim); color: var(--green); }
+.festival-tag.节日 { border-color: var(--amber-dim); color: var(--amber); }
+.festival-tag.法定 { border-color: var(--blue-dim); color: var(--blue); }
+
+/* ===== Lunar Date ===== */
+.lunar-date {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  letter-spacing: 1px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+/* ===== Bookmark Star ===== */
+.bk-star {
+  cursor: pointer;
+  font-size: 14px;
+  opacity: .3;
+  transition: all .2s;
+  flex-shrink: 0;
+  user-select: none;
+  line-height: 1;
+  padding: 0 2px;
+}
+.bk-star:hover { opacity: .7; transform: scale(1.2); }
+.bk-star.active { opacity: 1; color: var(--amber); text-shadow: 0 0 6px rgba(212, 165, 74, .4); }
+
+/* ===== Card View ===== */
+.cards-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding-left: 0;
+}
+.card-item {
+  display: block;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: background .15s, border-color .2s;
+  cursor: default;
+  animation: fadeSlideIn .3s ease both;
+}
+.card-item:hover { background: var(--bg-hover); border-color: var(--border-light); }
+.card-item .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.card-item .year { font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--gold); }
+.card-item .type-badge { font-size: 10px; }
+.card-item .desc { font-size: 13px; line-height: 1.6; color: var(--text); }
+
 /* ===== Animation ===== */
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(6px); }
@@ -569,6 +656,7 @@ body::before {
       <span id="yearRange"></span>
       <span id="dayOfYear" style="margin-left:12px;opacity:.6"></span>
     </div>
+    <div class="lunar-date" id="lunarDate"></div>
   </div>
 
   <div class="controls">
@@ -579,10 +667,12 @@ body::before {
       <button class="filter-btn" data-filter="出生">出生</button>
       <button class="filter-btn" data-filter="逝世">逝世</button>
       <button class="filter-btn" data-filter="cn" style="color:var(--amber-dim);letter-spacing:1px">中国</button>
+      <button class="filter-btn" data-filter="bookmark" style="color:var(--amber)">★ 收藏</button>
     </div>
     <div class="search-wrap">
       <input type="text" id="searchInput" placeholder="搜索关键词…">
     </div>
+    <button class="nav-btn" id="viewToggle" title="切换视图" style="margin-left:6px">☰</button>
   </div>
 </div>
 
@@ -613,10 +703,13 @@ body::before {
   ['loading','timeline','emptyState','summaryBar','monthLabel','dayLabel',
    'weekdayLabel','yearRange','dayOfYear','statCount','statFiltered',
    'datePicker','todayBtn','prevDay','nextDay','randomBtn',
-   'searchInput','header'].forEach(id => {
+   'searchInput','header','lunarDate','viewToggle','festivalBanner'].forEach(id => {
     el[id] = document.getElementById(id);
   });
   el.filterBtns = document.querySelectorAll('.filter-btn');
+
+  // ---- State ----
+  let isCardView = false;
 
   // ---- Utils ----
   const WEEKDAYS = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
@@ -653,6 +746,10 @@ body::before {
     el.datePicker.value = toISO(currentDate);
     el.weekdayLabel.textContent = WEEKDAYS[currentDate.getDay()];
     el.dayOfYear.textContent = `第${dayOfYear(currentDate)}天`;
+
+    // Lunar date
+    const lunarStr = getLunar(currentDate);
+    el.lunarDate.textContent = lunarStr ? `农历${lunarStr}` : '';
 
     // Years range
     const yNums = entries.map(e => parseInt(e.y)).filter(y => !isNaN(y) && y !== 0);
@@ -697,11 +794,10 @@ body::before {
 
     // Festival banner
     const festKey = dateKey(currentDate);
-    const banner = document.getElementById('festivalBanner');
     const dayFests = FESTIVALS[festKey];
     if (dayFests && dayFests.length) {
-      banner.classList.remove('hidden');
-      banner.innerHTML = dayFests.map(f =>
+      el.festivalBanner.classList.remove('hidden');
+      el.festivalBanner.innerHTML = dayFests.map(f =>
         `<span class="festival-tag ${f.t}">
           <span class="icon">${f.i}</span>
           <span class="label">${f.n}</span>
@@ -709,7 +805,7 @@ body::before {
         </span>`
       ).join('');
     } else {
-      banner.classList.add('hidden');
+      el.festivalBanner.classList.add('hidden');
     }
 
     // Sort: newest first
@@ -745,20 +841,50 @@ body::before {
     }
 
     // Build HTML
+    const bookmarks = getBookmarks();
+    const keyForBk = dateKey(currentDate);
+    function starHTML(e) {
+      const eid = e.y + '|' + e.d.slice(0, 20);
+      return bookmarks[keyForBk] && bookmarks[keyForBk].includes(eid)
+        ? '<span class="bk-star active" data-bk="' + eid + '">★</span>'
+        : '<span class="bk-star" data-bk="' + eid + '">☆</span>';
+    }
+
     let html = '';
-    for (const g of groups) {
-      html += `<div class="century-group">`;
-      html += `<div class="century-label">${g.label}</div>`;
-      for (const e of g.items) {
-        const desc = searchQuery ? highlightText(e.d, searchQuery) : e.d;
-        const yearDisplay = fmtYear(e.y);
-        html += `<div class="event-item">
-          <span class="year">${yearDisplay}</span>
-          <span class="type-badge ${e.t}">${e.t}</span>
-          <span class="desc">${desc}</span>
-        </div>`;
+    if (isCardView) {
+      // Card view
+      for (const g of groups) {
+        html += `<div class="century-group"><div class="century-label">${g.label}</div><div class="cards-view">`;
+        for (const e of g.items) {
+          const desc = searchQuery ? highlightText(e.d, searchQuery) : e.d;
+          const yearDisplay = fmtYear(e.y);
+          html += `<div class="card-item">
+            <div class="card-header">
+              <span class="year">${yearDisplay}</span>
+              <span class="type-badge ${e.t}">${e.t}</span>
+            </div>
+            <div class="desc">${desc}</div>
+          </div>`;
+        }
+        html += `</div></div>`;
       }
-      html += `</div>`;
+    } else {
+      // List view (timeline)
+      for (const g of groups) {
+        html += `<div class="century-group">`;
+        html += `<div class="century-label">${g.label}</div>`;
+        for (const e of g.items) {
+          const desc = searchQuery ? highlightText(e.d, searchQuery) : e.d;
+          const yearDisplay = fmtYear(e.y);
+          html += `<div class="event-item">
+            ${starHTML(e)}
+            <span class="year">${yearDisplay}</span>
+            <span class="type-badge ${e.t}">${e.t}</span>
+            <span class="desc">${desc}</span>
+          </div>`;
+        }
+        html += `</div>`;
+      }
     }
 
     el.timeline.innerHTML = html;
@@ -855,6 +981,42 @@ body::before {
     }, 200);
   });
 
+  // ---- View Toggle ----
+  el.viewToggle.addEventListener('click', function() {
+    isCardView = !isCardView;
+    this.textContent = isCardView ? '≡' : '☰';
+    this.title = isCardView ? '切换为列表' : '切换为卡片';
+    render();
+  });
+
+  // ---- Bookmark (delegated click) ----
+  document.addEventListener('click', function(e) {
+    const star = e.target.closest('.bk-star');
+    if (!star) return;
+    const eid = star.dataset.bk;
+    if (!eid) return;
+    const key = dateKey(currentDate);
+    const bk = getBookmarks();
+    if (!bk[key]) bk[key] = [];
+    const idx = bk[key].indexOf(eid);
+    if (idx > -1) {
+      bk[key].splice(idx, 1);
+      if (bk[key].length === 0) delete bk[key];
+    } else {
+      bk[key].push(eid);
+    }
+    saveBookmarks(bk);
+    render();
+  });
+
+  // Keyboard shortcut for view toggle
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'v' || e.key === 'V') {
+      el.viewToggle.click();
+    }
+  });
+
   // ---- Festival Data ----
   const FESTIVALS = {
     "1-1":  [{ n: "元旦", t: "法定", i: "🎉" }],
@@ -899,6 +1061,13 @@ body::before {
   };
   function matchesFilter(entry) {
     if (currentFilter === 'cn') return isChineseEvent(entry);
+    if (currentFilter === 'bookmark') {
+      const bk = getBookmarks();
+      const key = dateKey(currentDate);
+      if (!bk[key]) return false;
+      const eid = entry.y + '|' + entry.d.slice(0, 20);
+      return bk[key].includes(eid);
+    }
     if (currentFilter !== 'all' && entry.t !== currentFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -907,7 +1076,56 @@ body::before {
     return true;
   }
 
-  const CN_KEYWORDS = ["中国","中华","毛泽东","周恩来","邓小平","秦始皇",
+  // ---- Bookmark Storage ----
+  function getBookmarks() {
+    try {
+      return JSON.parse(localStorage.getItem('tih_bookmarks') || '{}');
+    } catch { return {}; }
+  }
+  function saveBookmarks(bk) {
+    try { localStorage.setItem('tih_bookmarks', JSON.stringify(bk)); } catch {}
+  }
+
+  // ---- Lunar Calendar ----
+  const LUNAR_MONTHS = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+  const LUNAR_DAYS = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+    '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+    '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+  const LUNAR_YEARS = [/* simplified lunar year data: (days_in_year, leap_month, leap_days, base_offset) */
+    /* 2020-2030 approximate offsets from Gregorian Jan 1 */
+    [384,4,29,25],[354,-1,0,44],[355,-1,0,33],[384,2,30,7],[354,-1,0,56],
+    [355,-1,0,45],[383,5,29,20],[354,-1,0,70],[355,-1,0,59],[384,4,29,33],
+    [355,-1,0,83]
+  ];
+  function getLunar(d) {
+    const y = d.getFullYear();
+    const base = new Date(y, 0, 1); // Jan 1
+    const dayOfYear = Math.floor((d - base) / 86400000);
+    const idx = y - 2020;
+    if (idx < 0 || idx >= LUNAR_YEARS.length) return '';
+    const [total, leapM, leapDays, offset] = LUNAR_YEARS[idx];
+    let lunarDay = dayOfYear - offset;
+    if (lunarDay < 0) { lunarDay += 354; } // previous year
+    if (lunarDay >= total) lunarDay -= total;
+    if (lunarDay < 0) return '';
+    let m = 0, acc = 0;
+    const monthDays = [30,29,30,29,30,29,30,29,30,29,30,29];
+    if (leapM > 0) monthDays.splice(leapM, 0, leapDays);
+    for (let i = 0; i < monthDays.length; i++) {
+      if (lunarDay < acc + monthDays[i]) {
+        m = i; break;
+      }
+      acc += monthDays[i];
+    }
+    const dayInMonth = lunarDay - acc;
+    let monthLabel;
+    if (leapM > 0 && m === leapM) monthLabel = '闰' + LUNAR_MONTHS[m];
+    else if (leapM > 0 && m > leapM) monthLabel = LUNAR_MONTHS[m - 1];
+    else monthLabel = LUNAR_MONTHS[m];
+    return monthLabel + '月' + (LUNAR_DAYS[dayInMonth] || (dayInMonth + 1));
+  }
+
+  const CN_KEYWORDS = [
     "汉武帝","唐朝","宋朝","明朝","清朝","抗日","北京","上海","长征","解放军",
     "新中国","共产","国民党","台湾","香港","澳门","中日","中美","中苏",
     "汉","唐","宋","明","清","秦","周","春秋","战国","三国","晋","隋","元",
