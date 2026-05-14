@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>历史上的今天</title>
+<style>
+/* ===== Design System ===== */
+:root {
+  --bg: #141110;
+  --bg-card: #1d1815;
+  --bg-hover: #28211c;
+  --border: #322a24;
+  --border-light: #443a32;
+  --text: #cbbca8;
+  --text-dim: #7a6e62;
+  --text-bright: #ede3d3;
+  --amber: #d4a54a;
+  --amber-glow: #e8c06a;
+  --amber-dim: #8a6a2e;
+  --gold: #b8893a;
+  --red: #c05050;
+  --red-dim: #6a3030;
+  --green: #5a9a6a;
+  --green-dim: #2a4a34;
+  --blue: #5a7aaa;
+  --blue-dim: #2a3a5a;
+  --font-display: 'Georgia', 'Noto Serif SC', serif;
+  --font-body: 'Georgia', 'Noto Serif SC', 'Songti SC', serif;
+  --font-ui: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Subtle paper grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+::selection { background: var(--amber); color: #1a1614; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ===== Header ===== */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 28px 32px 20px;
+  background: linear-gradient(180deg, #1a1512 0%, var(--bg) 100%);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(16px);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1000px;
+  margin: 0 auto 20px;
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-bright);
+  letter-spacing: 4px;
+  position: relative;
+}
+.site-title span { color: var(--amber); }
+.site-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: var(--amber-dim);
+}
+
+/* ===== Date Hero ===== */
+.date-hero {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+.date-hero .day-of-week {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.date-hero .month-day {
+  font-family: var(--font-display);
+  font-size: 68px;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1;
+  letter-spacing: 6px;
+  text-shadow: 0 2px 20px rgba(212, 165, 74, .08);
+}
+.date-hero .month-day span { color: var(--amber); }
+.date-hero .sub-info {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  font-family: var(--font-ui);
+}
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+
+.controls input[type="date"] {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: border-color .15s;
+  color-scheme: dark;
+}
+.controls input[type="date"]:focus {
+  outline: none;
+  border-color: var(--amber);
+}
+
+.btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-hover); border-color: var(--border-light); }
+.btn-primary {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+.btn-primary:hover {
+  background: var(--amber-dim);
+  color: #fff;
+  border-color: var(--amber);
+}
+
+.nav-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.nav-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+.nav-btn:hover { background: var(--bg-hover); border-color: var(--border-light); color: var(--amber); }
+
+/* Filter tabs */
+.filters {
+  display: flex;
+  gap: 3px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--border);
+}
+.filter-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 5px 13px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  transition: all .15s;
+}
+.filter-btn:hover { color: var(--text); }
+.filter-btn.active {
+  background: var(--amber);
+  color: #141110;
+  font-weight: 500;
+}
+
+/* Search */
+.search-wrap {
+  flex: 1;
+  min-width: 160px;
+  position: relative;
+}
+.search-wrap input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px 7px 32px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  transition: border-color .15s;
+}
+.search-wrap input:focus { outline: none; border-color: var(--amber); }
+.search-wrap::before {
+  content: '⌕';
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-dim);
+  opacity: .6;
+}
+
+/* ===== Main ===== */
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px 32px 60px;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 100px 0;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-left: 10px;
+  border: 2px solid var(--amber-dim);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden { display: none !important; }
+
+/* ===== Summary bar ===== */
+.summary-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 4px;
+  flex-wrap: wrap;
+}
+.summary-stat {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  letter-spacing: .5px;
+}
+.summary-stat strong {
+  color: var(--amber);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===== Timeline ===== */
+.timeline {
+  position: relative;
+  padding-left: 20px;
+}
+/* Vertical line */
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--amber-dim) 0%, var(--border) 50%, var(--amber-dim) 100%);
+  opacity: .3;
+}
+
+/* Century group */
+.century-group {
+  margin-bottom: 28px;
+  position: relative;
+}
+.century-label {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--amber-dim);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  padding: 4px 0 4px 4px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Event item */
+.event-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 10px 6px 16px;
+  border-radius: 4px;
+  transition: background .15s;
+  cursor: default;
+  position: relative;
+}
+.event-item:hover { background: var(--bg-hover); }
+/* Dot on timeline */
+.event-item::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 13px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border-light);
+  border: 1px solid var(--bg);
+  transition: all .2s;
+}
+.event-item:hover::before {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(212, 165, 74, .4);
+}
+
+.event-item .year {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  white-space: nowrap;
+  min-width: 48px;
+  text-align: right;
+  opacity: .85;
+  letter-spacing: .5px;
+}
+.event-item .type-badge {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: .5px;
+  font-family: var(--font-ui);
+  border: 1px solid transparent;
+}
+.type-badge.事件 {
+  background: var(--green-dim);
+  color: var(--green);
+  border-color: rgba(90, 154, 106, .2);
+}
+.type-badge.出生 {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border-color: rgba(90, 122, 170, .2);
+}
+.type-badge.逝世 {
+  background: var(--red-dim);
+  color: var(--red);
+  border-color: rgba(192, 80, 80, .2);
+}
+.event-item .desc {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.event-item .desc .highlight {
+  background: var(--amber-dim);
+  color: var(--text-bright);
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+/* ===== Empty state ===== */
+.empty-state {
+  text-align: center;
+  padding: 100px 20px;
+  color: var(--text-dim);
+  font-size: 15px;
+  letter-spacing: 1px;
+  font-family: var(--font-body);
+}
+.empty-state .empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: .4;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.event-item {
+  animation: fadeSlideIn .3s ease both;
+}
+.event-item:nth-child(1) { animation-delay: 0s; }
+.event-item:nth-child(2) { animation-delay: .03s; }
+.event-item:nth-child(3) { animation-delay: .06s; }
+.event-item:nth-child(4) { animation-delay: .09s; }
+.event-item:nth-child(5) { animation-delay: .12s; }
+.event-item:nth-child(6) { animation-delay: .15s; }
+.event-item:nth-child(7) { animation-delay: .18s; }
+.event-item:nth-child(8) { animation-delay: .21s; }
+.event-item:nth-child(9) { animation-delay: .24s; }
+.event-item:nth-child(10) { animation-delay: .27s; }
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .header { padding: 16px; }
+  .site-title { font-size: 18px; letter-spacing: 2px; }
+  .date-hero .month-day { font-size: 44px; letter-spacing: 3px; }
+  .controls { gap: 6px; }
+  .main { padding: 12px 16px 40px; }
+  .timeline { padding-left: 14px; }
+  .event-item { padding: 5px 8px 5px 12px; flex-wrap: wrap; gap: 3px; }
+  .event-item .year { min-width: 40px; font-size: 12px; }
+  .event-item .desc { font-size: 13px; }
+  .event-item::before { left: -11px; width: 4px; height: 4px; }
+  .summary-bar { gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="header">
+  <div class="header-top">
+    <div class="site-title">历史<span>上</span>的今天</div>
+    <div class="nav-group">
+      <button class="nav-btn" id="randomBtn" title="随机一日">✦</button>
+      <button class="nav-btn" id="prevDay" title="前一天">‹</button>
+      <button class="btn btn-primary" id="todayBtn">今天</button>
+      <button class="nav-btn" id="nextDay" title="后一天">›</button>
+    </div>
+  </div>
+
+  <div class="date-hero">
+    <div class="day-of-week" id="weekdayLabel"></div>
+    <div class="month-day"><span id="monthLabel">5</span>.<span id="dayLabel">14</span></div>
+    <div class="sub-info">
+      <span id="yearRange"></span>
+      <span id="dayOfYear" style="margin-left:12px;opacity:.6"></span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="date" id="datePicker">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="事件">事件</button>
+      <button class="filter-btn" data-filter="出生">出生</button>
+      <button class="filter-btn" data-filter="逝世">逝世</button>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="搜索关键词…">
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="loading" id="loading">载入中</div>
+  <div class="summary-bar hidden" id="summaryBar">
+    <span class="summary-stat" id="statCount"></span>
+    <span class="summary-stat" id="statFiltered" style="opacity:.6"></span>
+  </div>
+  <div class="timeline hidden" id="timeline"></div>
+  <div class="empty-state hidden" id="emptyState">
+    <div class="empty-icon">◌</div>
+    <div>没有符合条件的历史事件</div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function() {
+  const data = HISTORY_DATA;
+  let currentDate = new Date();
+  let currentFilter = 'all';
+  let searchQuery = '';
+  let isBusy = false;
+
+  const el = {};
+  ['loading','timeline','emptyState','summaryBar','monthLabel','dayLabel',
+   'weekdayLabel','yearRange','dayOfYear','statCount','statFiltered',
+   'datePicker','todayBtn','prevDay','nextDay','randomBtn',
+   'searchInput','header'].forEach(id => {
+    el[id] = document.getElementById(id);
+  });
+  el.filterBtns = document.querySelectorAll('.filter-btn');
+
+  // ---- Utils ----
+  const WEEKDAYS = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function dateKey(d) { return `${d.getMonth()+1}-${d.getDate()}`; }
+  function toISO(d) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function fromISO(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+  function sameDate(a,b) { return a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+
+  // Format year for display (BC/AD)
+  function fmtYear(y) {
+    const n = parseInt(y);
+    if (isNaN(n)) return y;
+    return n < 0 ? `前${Math.abs(n)}` : String(n);
+  }
+
+  // Day of year
+  function dayOfYear(d) {
+    const start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+  }
+
+  // ---- Render ----
+  function render() {
+    if (isBusy) return;
+    isBusy = true;
+
+    const key = dateKey(currentDate);
+    const entries = data[key] || [];
+
+    // Update date display
+    el.monthLabel.textContent = currentDate.getMonth() + 1;
+    el.dayLabel.textContent = pad(currentDate.getDate());
+    el.datePicker.value = toISO(currentDate);
+    el.weekdayLabel.textContent = WEEKDAYS[currentDate.getDay()];
+    el.dayOfYear.textContent = `第${dayOfYear(currentDate)}天`;
+
+    // Years range
+    const yNums = entries.map(e => parseInt(e.y)).filter(y => !isNaN(y) && y !== 0);
+    if (yNums.length) {
+      const minY = Math.min(...yNums);
+      const maxY = Math.max(...yNums);
+      el.yearRange.textContent = `${fmtYear(minY)} — ${fmtYear(maxY)}`;
+    } else {
+      el.yearRange.textContent = '';
+    }
+
+    if (entries.length === 0) {
+      el.loading.classList.add('hidden');
+      el.timeline.classList.add('hidden');
+      el.summaryBar.classList.add('hidden');
+      el.emptyState.classList.remove('hidden');
+      isBusy = false;
+      return;
+    }
+
+    // Filter
+    const filtered = entries.filter(e => {
+      if (currentFilter !== 'all' && e.t !== currentFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return e.d.toLowerCase().includes(q) || e.y.includes(q);
+      }
+      return true;
+    });
+
+    // Summary
+    el.statCount.textContent = `共 ${filtered.length} 条`;
+    el.statFiltered.textContent = entries.length !== filtered.length
+      ? `（筛选自 ${entries.length} 条）` : '';
+
+    if (filtered.length === 0) {
+      el.loading.classList.add('hidden');
+      el.timeline.classList.add('hidden');
+      el.summaryBar.classList.remove('hidden');
+      el.emptyState.classList.remove('hidden');
+      isBusy = false;
+      return;
+    }
+
+    el.loading.classList.add('hidden');
+    el.emptyState.classList.add('hidden');
+    el.summaryBar.classList.remove('hidden');
+    el.timeline.classList.remove('hidden');
+
+    // Sort: newest first
+    const sorted = [...filtered].sort((a, b) => {
+      const ay = parseInt(a.y) || 0;
+      const by = parseInt(b.y) || 0;
+      return by - ay;
+    });
+
+    // Group by century
+    const groups = [];
+    let currentGroup = null;
+    for (const e of sorted) {
+      const y = parseInt(e.y);
+      const century = isNaN(y) ? '未' : (y < 0 ? '公元前' : '') + (Math.abs(y) < 100 ? '早期' : Math.ceil(Math.abs(y)/100) + '世纪');
+      const groupKey = y < 0 ? `前${Math.ceil(Math.abs(y)/100)}` : `${Math.ceil(Math.abs(y)/100)}`;
+
+      if (!currentGroup || currentGroup.key !== groupKey) {
+        // Format century label
+        let label;
+        if (y < 0) {
+          const c = Math.ceil(Math.abs(y)/100);
+          label = `公元前${c}世纪`;
+        } else if (y < 100) {
+          label = '公元早期';
+        } else {
+          label = `${Math.ceil(y/100)}世纪`;
+        }
+        currentGroup = { key: groupKey, label, items: [] };
+        groups.push(currentGroup);
+      }
+      currentGroup.items.push(e);
+    }
+
+    // Build HTML
+    let html = '';
+    for (const g of groups) {
+      html += `<div class="century-group">`;
+      html += `<div class="century-label">${g.label}</div>`;
+      for (const e of g.items) {
+        const desc = searchQuery ? highlightText(e.d, searchQuery) : e.d;
+        const yearDisplay = fmtYear(e.y);
+        html += `<div class="event-item">
+          <span class="year">${yearDisplay}</span>
+          <span class="type-badge ${e.t}">${e.t}</span>
+          <span class="desc">${desc}</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+
+    el.timeline.innerHTML = html;
+    isBusy = false;
+  }
+
+  function highlightText(text, query) {
+    if (!query) return text;
+    const q = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.split(new RegExp(`(${q})`, 'gi'))
+      .map(p => p.toLowerCase() === query.toLowerCase()
+        ? `<span class="highlight">${p}</span>` : p).join('');
+  }
+
+  // ---- Navigation ----
+  function goTo(d) {
+    currentDate = d;
+    render();
+    // Update URL hash without scrolling
+    history.replaceState(null, '', `#${d.getMonth()+1}-${d.getDate()}`);
+  }
+
+  function goToday() { goTo(new Date()); }
+
+  function prevDay() {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() - 1);
+    goTo(d);
+  }
+
+  function nextDay() {
+    const d = new Date(currentDate);
+    d.setDate(d.getDate() + 1);
+    goTo(d);
+  }
+
+  function goRandom() {
+    const keys = Object.keys(data);
+    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    const [m, d] = randomKey.split('-').map(Number);
+    goTo(new Date(2000, m - 1, d)); // year 2000 is arbitrary, we just need month/day
+  }
+
+  // ---- Init from hash ----
+  function initFromHash() {
+    const hash = location.hash.replace('#', '');
+    if (hash && /^\d{1,2}-\d{1,2}$/.test(hash)) {
+      const [m, d] = hash.split('-').map(Number);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        goTo(new Date(2000, m - 1, d));
+        return;
+      }
+    }
+    goTo(new Date()); // today
+  }
+
+  // ---- Events ----
+  el.datePicker.addEventListener('change', function() {
+    goTo(fromISO(this.value));
+  });
+  el.todayBtn.addEventListener('click', goToday);
+  el.prevDay.addEventListener('click', prevDay);
+  el.nextDay.addEventListener('click', nextDay);
+  el.randomBtn.addEventListener('click', goRandom);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevDay(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextDay(); }
+    if (e.key === 't' || e.key === 'T') { goToday(); }
+    if (e.key === 'r' || e.key === 'R') { goRandom(); }
+  });
+
+  // Hash change (browser back/forward)
+  window.addEventListener('hashchange', initFromHash);
+
+  // Filters
+  el.filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      el.filterBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentFilter = this.dataset.filter;
+      render();
+    });
+  });
+
+  // Search
+  let searchTimer;
+  el.searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = this.value.trim();
+      render();
+    }, 200);
+  });
+
+  // ---- Start ----
+  initFromHash();
+})();
+</script>
+</body>
+</html>
