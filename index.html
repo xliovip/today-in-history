@@ -129,7 +129,49 @@ body::before {
   font-family: var(--font-ui);
 }
 
-/* ===== Controls ===== */
+/* ===== Festival Banner ===== */
+.festival-banner {
+  max-width: 1000px;
+  margin: 0 auto 16px;
+  padding: 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.festival-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  letter-spacing: .5px;
+  animation: fadeSlideIn .3s ease both;
+}
+.festival-tag.节日 {
+  background: linear-gradient(135deg, #5a2020, #7a3030);
+  color: #f0d0a0;
+  border: 1px solid #a04040;
+}
+.festival-tag.节气 {
+  background: linear-gradient(135deg, #2a4a34, #3a6a4a);
+  color: #c0e0c0;
+  border: 1px solid #4a8a5a;
+}
+.festival-tag.法定 {
+  background: linear-gradient(135deg, #2a3a5a, #3a5a7a);
+  color: #c0d0e0;
+  border: 1px solid #4a6a9a;
+}
+.festival-tag .icon { font-size: 15px; }
+.festival-tag .label { font-weight: 500; }
+.festival-tag .sub {
+  font-size: 11px;
+  opacity: .7;
+}
+
+/* ===== Event cards ===== */
 .controls {
   display: flex;
   gap: 10px;
@@ -516,6 +558,7 @@ body::before {
     <span class="summary-stat" id="statCount"></span>
     <span class="summary-stat" id="statFiltered" style="opacity:.6"></span>
   </div>
+  <div class="festival-banner hidden" id="festivalBanner"></div>
   <div class="timeline hidden" id="timeline"></div>
   <div class="empty-state hidden" id="emptyState">
     <div class="empty-icon">◌</div>
@@ -617,6 +660,23 @@ body::before {
     el.emptyState.classList.add('hidden');
     el.summaryBar.classList.remove('hidden');
     el.timeline.classList.remove('hidden');
+
+    // Festival banner
+    const festKey = dateKey(currentDate);
+    const banner = document.getElementById('festivalBanner');
+    const dayFests = FESTIVALS[festKey];
+    if (dayFests && dayFests.length) {
+      banner.classList.remove('hidden');
+      banner.innerHTML = dayFests.map(f =>
+        `<span class="festival-tag ${f.t}">
+          <span class="icon">${f.i}</span>
+          <span class="label">${f.n}</span>
+          <span class="sub">${f.t === '节气' ? '节气' : f.t === '节日' ? '传统节日' : '法定节日'}</span>
+        </span>`
+      ).join('');
+    } else {
+      banner.classList.add('hidden');
+    }
 
     // Sort: newest first
     const sorted = [...filtered].sort((a, b) => {
@@ -761,7 +821,48 @@ body::before {
     }, 200);
   });
 
-  // ---- Chinese Keywords ----
+  // ---- Festival Data ----
+  const FESTIVALS = {
+    "1-1":  [{ n: "元旦", t: "法定", i: "🎉" }],
+    "2-2":  [{ n: "龙抬头", t: "节日", i: "🐉" }],
+    "2-4":  [{ n: "立春", t: "节气", i: "🌱" }],
+    "2-19": [{ n: "雨水", t: "节气", i: "🌧" }],
+    "3-6":  [{ n: "惊蛰", t: "节气", i: "⚡" }],
+    "3-8":  [{ n: "妇女节", t: "法定", i: "🌷" }],
+    "3-12": [{ n: "植树节", t: "法定", i: "🌳" }],
+    "3-21": [{ n: "春分", t: "节气", i: "🌿" }],
+    "4-5":  [{ n: "清明", t: "节日", i: "🕊" }, { n: "清明", t: "节气", i: "🌿" }],
+    "4-20": [{ n: "谷雨", t: "节气", i: "🌾" }],
+    "5-1":  [{ n: "劳动节", t: "法定", i: "⚒" }],
+    "5-4":  [{ n: "青年节", t: "法定", i: "🌟" }],
+    "5-5":  [{ n: "立夏", t: "节气", i: "☀" }, { n: "端午节", t: "节日", i: "🐲" }],
+    "5-21": [{ n: "小满", t: "节气", i: "🌾" }],
+    "6-1":  [{ n: "儿童节", t: "法定", i: "🎈" }],
+    "6-6":  [{ n: "芒种", t: "节气", i: "🌾" }],
+    "6-21": [{ n: "夏至", t: "节气", i: "☀" }],
+    "7-1":  [{ n: "建党节", t: "法定", i: "🚩" }],
+    "7-7":  [{ n: "小暑", t: "节气", i: "🔥" }, { n: "七夕", t: "节日", i: "💕" }],
+    "7-15": [{ n: "中元节", t: "节日", i: "🕯" }],
+    "7-23": [{ n: "大暑", t: "节气", i: "🔥" }],
+    "8-1":  [{ n: "建军节", t: "法定", i: "⭐" }],
+    "8-7":  [{ n: "立秋", t: "节气", i: "🍂" }],
+    "8-15": [{ n: "中秋节", t: "节日", i: "🌙" }],
+    "8-23": [{ n: "处暑", t: "节气", i: "🍃" }],
+    "9-8":  [{ n: "白露", t: "节气", i: "💧" }],
+    "9-10": [{ n: "教师节", t: "法定", i: "📖" }],
+    "9-23": [{ n: "秋分", t: "节气", i: "🍁" }],
+    "10-1": [{ n: "国庆节", t: "法定", i: "🇨🇳" }],
+    "10-8": [{ n: "寒露", t: "节气", i: "🌬" }],
+    "10-23":[{ n: "霜降", t: "节气", i: "❄" }],
+    "11-7": [{ n: "立冬", t: "节气", i: "❄" }],
+    "11-8": [{ n: "记者节", t: "法定", i: "📰" }],
+    "11-22":[{ n: "小雪", t: "节气", i: "🌨" }],
+    "12-7": [{ n: "大雪", t: "节气", i: "❄" }],
+    "12-22":[{ n: "冬至", t: "节气", i: "🥟" }],
+    "12-24":[{ n: "平安夜", t: "节日", i: "🎄" }],
+    "12-25":[{ n: "圣诞节", t: "节日", i: "🎄" }],
+    "12-30":[{ n: "除夕", t: "节日", i: "🧧" }],
+  };
   function matchesFilter(entry) {
     if (currentFilter === 'cn') return isChineseEvent(entry);
     if (currentFilter !== 'all' && entry.t !== currentFilter) return false;
