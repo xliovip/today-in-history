@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://xliovip.github.io/today-in-history/sitemap.xml
