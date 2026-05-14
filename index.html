@@ -502,6 +502,7 @@ body::before {
       <button class="filter-btn" data-filter="事件">事件</button>
       <button class="filter-btn" data-filter="出生">出生</button>
       <button class="filter-btn" data-filter="逝世">逝世</button>
+      <button class="filter-btn" data-filter="cn" style="color:var(--amber-dim);letter-spacing:1px">中国</button>
     </div>
     <div class="search-wrap">
       <input type="text" id="searchInput" placeholder="搜索关键词…">
@@ -596,14 +597,7 @@ body::before {
     }
 
     // Filter
-    const filtered = entries.filter(e => {
-      if (currentFilter !== 'all' && e.t !== currentFilter) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        return e.d.toLowerCase().includes(q) || e.y.includes(q);
-      }
-      return true;
-    });
+    const filtered = entries.filter(e => matchesFilter(e));
 
     // Summary
     el.statCount.textContent = `共 ${filtered.length} 条`;
@@ -767,7 +761,44 @@ body::before {
     }, 200);
   });
 
-  // ---- Start ----
+  // ---- Chinese Keywords ----
+  function matchesFilter(entry) {
+    if (currentFilter === 'cn') return isChineseEvent(entry);
+    if (currentFilter !== 'all' && entry.t !== currentFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return entry.d.toLowerCase().includes(q) || entry.y.includes(q);
+    }
+    return true;
+  }
+
+  const CN_KEYWORDS = ["中国","中华","毛泽东","周恩来","邓小平","秦始皇",
+    "汉武帝","唐朝","宋朝","明朝","清朝","抗日","北京","上海","长征","解放军",
+    "新中国","共产","国民党","台湾","香港","澳门","中日","中美","中苏",
+    "汉","唐","宋","明","清","秦","周","春秋","战国","三国","晋","隋","元",
+    "乾隆","康熙","雍正","朱元璋","李世民","嬴政","孔子","老子","孟子",
+    "孙中山","鲁迅","溥仪","袁世凯","蒋介石","毛主席","周总理","江泽",
+    "胡锦","习近平","长城","黄河","长江","故宫","天安","改革开放","辛亥",
+    "五四","九一八","七七","南京","红军","八路","新四军","志愿军",
+    "两弹一星","神舟","嫦娥","天宫","高铁","一带一路","汉朝","唐朝",
+    "宋朝","明朝","清朝","华夏","太监","科举","皇帝","丞相","尚书",
+    "匈奴","突厥","契丹","女真","蒙古","满清","鸦片","甲午","戊戌",
+    "义和团","南昌","井冈山","延安","重庆谈判","三大战役","开国大典",
+    "抗美援朝","大跃进","文革","浦东","奥运","世博","辽宁舰","歼",
+    "东风","北斗","长征","红旗","熊猫","功夫","书法","春节","中秋",
+    "端午","清明","故宫","天坛","颐和园","长城","兵马俑","丝绸之路",
+    "郑和","鉴真","玄奘","张骞","班超","岳飞","文天祥","林则徐",
+    "康有为","梁启超","李大钊","陈独秀","胡适","鲁迅","茅盾","巴金",
+    "老舍","曹禺","郭沫若","徐志摩","张爱玲","钱钟书","沈从文",
+    "华罗庚","钱学森","邓稼先","袁隆平","屠呦呦","莫言","刘慈欣"];
+
+  function isChineseEvent(entry) {
+    const text = entry.d + ' ' + entry.y;
+    for (const kw of CN_KEYWORDS) {
+      if (text.includes(kw)) return true;
+    }
+    return false;
+  }
   initFromHash();
 })();
 </script>
